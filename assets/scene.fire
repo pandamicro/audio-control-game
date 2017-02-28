@@ -443,9 +443,9 @@
     "maxSpeed": {
       "__type__": "cc.Vec2",
       "x": 100,
-      "y": 80
+      "y": 120
     },
-    "gravity": -1000,
+    "gravity": -300,
     "drag": 1500,
     "direction": 0,
     "jumpSpeed": 300
@@ -461,13 +461,13 @@
     "tag": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": -1,
-      "y": -1
+      "x": 0,
+      "y": 0
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 20,
-      "height": 34
+      "width": 28,
+      "height": 37
     }
   },
   {

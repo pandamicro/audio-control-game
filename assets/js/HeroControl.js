@@ -72,6 +72,10 @@ cc.Class({
         this.node.color = cc.Color.RED;
 
         this.touchingNumber ++;
+
+        var transParent = this.node.parent.getNodeToWorldTransformAR();
+        var appx = this.node.anchorX * this.node.width;
+        var appy = this.node.anchorY * this.node.height;
         
         // 1st step 
         // get pre aabb, go back before collision
@@ -88,11 +92,11 @@ cc.Class({
 
         if (cc.Intersection.rectRect(selfPreAabb, otherPreAabb)) {
             if (this.speed.x < 0 && (selfPreAabb.xMax > otherPreAabb.xMax)) {
-                this.node.x = otherPreAabb.xMax - this.node.parent.x;
+                this.node.x = otherPreAabb.xMax - transParent.tx + appx;
                 this.collisionX = -1;
             }
             else if (this.speed.x > 0 && (selfPreAabb.xMin < otherPreAabb.xMin)) {
-                this.node.x = otherPreAabb.xMin - selfPreAabb.width - this.node.parent.x;
+                this.node.x = otherPreAabb.xMin - selfPreAabb.width - transParent.tx + appx;
                 this.collisionX = 1;
             }
 
@@ -108,12 +112,12 @@ cc.Class({
 
         if (cc.Intersection.rectRect(selfPreAabb, otherPreAabb)) {
             if (this.speed.y < 0 && (selfPreAabb.yMax > otherPreAabb.yMax)) {
-                this.node.y = otherPreAabb.yMax - this.node.parent.y;
+                this.node.y = otherPreAabb.yMax - transParent.ty + appy;
                 this.jumping = false;
                 this.collisionY = -1;
             }
             else if (this.speed.y > 0 && (selfPreAabb.yMin < otherPreAabb.yMin)) {
-                this.node.y = otherPreAabb.yMin - selfPreAabb.height - this.node.parent.y;
+                this.node.y = otherPreAabb.yMin - selfPreAabb.height - transParent.ty + appy;
                 this.collisionY = 1;
             }
             
