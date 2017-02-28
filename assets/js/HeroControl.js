@@ -3,12 +3,15 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        audioControl: require('AudioControl'),
         speed: cc.v2(0, 0),
         maxSpeed: cc.v2(2000, 2000),
         gravity: -1000,
         drag: 1000,
         direction: 0,
-        jumpSpeed: 300
+        jumpSpeed: 300,
+        runVoiceLevel: 15,
+        jumpVoiceLevel: 40
     },
 
     // use this for initialization
@@ -16,12 +19,7 @@ cc.Class({
         cc.director.getCollisionManager().enabled = true;
         cc.director.getCollisionManager().enabledDebugDraw = true;
         
-        //add keyboard input listener to call turnLeft and turnRight
-        cc.eventManager.addListener({
-            event: cc.EventListener.KEYBOARD, 
-            onKeyPressed: this.onKeyPressed.bind(this),
-            onKeyReleased: this.onKeyReleased.bind(this),
-        }, this.node);
+        this.registerEvent();
         
         this.collisionX = 0;
         this.collisionY = 0;
@@ -31,14 +29,20 @@ cc.Class({
 
         this.touchingNumber = 0;
     },
+
+    registerEvent: function () {
+        //add keyboard input listener to call turnLeft and turnRight
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyPressed, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyReleased, this);
+    },
     
     onDisabled: function () {
         cc.director.getCollisionManager().enabled = false;
         cc.director.getCollisionManager().enabledDebugDraw = false;
     },
     
-    onKeyPressed: function (keyCode, event) {
-        switch(keyCode) {
+    onKeyPressed: function (event) {
+        switch(event.keyCode) {
             case cc.KEY.a:
             case cc.KEY.left:
                 this.direction = -1;
@@ -57,8 +61,8 @@ cc.Class({
         }
     },
     
-    onKeyReleased: function (keyCode, event) {
-        switch(keyCode) {
+    onKeyReleased: function (event) {
+        switch(event.keyCode) {
             case cc.KEY.a:
             case cc.KEY.left:
             case cc.KEY.d:
@@ -166,6 +170,21 @@ cc.Class({
     },
     
     update: function (dt) {
+        // Voice control run
+        var voiceLevel = this.audioControl.voiceLevel;
+        if (voiceLevel > this.runVoiceLevel) {
+            this.direction = 1;
+        }
+        else {
+            this.direction = 0;
+        }
+
+        // Voice control jump
+        if (!this.jumping && voiceLevel > this.jumpVoiceLevel) {
+            this.jumping = true;
+            this.speed.y = voiceLevel / 100 * this.jumpSpeed;  
+        }
+
         if (this.collisionY === 0) {
             this.speed.y += this.gravity * dt;
             if (Math.abs(this.speed.y) > this.maxSpeed.y) {
