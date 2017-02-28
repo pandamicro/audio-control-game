@@ -28,9 +28,21 @@ _CCSettings = {
                 "maps/tileset.png",
                 "cc.Texture2D"
             ],
+            "0ee0e72d-476b-48f9-a186-e4a4f1c2f2ab": [
+                "sfx/death.wav",
+                "cc.AudioClip"
+            ],
+            "1d7e0a47-d5ad-4c4a-bca4-4c76a8d52988": [
+                "sfx/jump_07.wav",
+                "cc.AudioClip"
+            ],
             "cbb200db-6bc2-48b5-bdf5-731e42270213": [
                 "images/roles.png",
                 "cc.Texture2D"
+            ],
+            "d7ad9af4-f21b-41a9-bc62-83ea99b772b9": [
+                "sfx/Retro Samurai v0_4.mp3",
+                "cc.AudioClip"
             ]
         },
         "internal": {
