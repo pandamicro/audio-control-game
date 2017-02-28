@@ -11,13 +11,15 @@ cc.Class({
         direction: 0,
         jumpSpeed: 300,
         runVoiceLevel: 15,
-        jumpVoiceLevel: 40
+        jumpVoiceLevel: 40,
+        jumpAudio: cc.AudioClip,
+        dieAudio: cc.AudioClip
     },
 
     // use this for initialization
     onLoad: function () {
         cc.director.getCollisionManager().enabled = true;
-        cc.director.getCollisionManager().enabledDebugDraw = true;
+        // cc.director.getCollisionManager().enabledDebugDraw = true;
         
         this.registerEvent();
         
@@ -32,13 +34,13 @@ cc.Class({
 
     registerEvent: function () {
         //add keyboard input listener to call turnLeft and turnRight
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyPressed, this);
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyReleased, this);
+        // cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyPressed, this);
+        // cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyReleased, this);
     },
     
     onDisabled: function () {
         cc.director.getCollisionManager().enabled = false;
-        cc.director.getCollisionManager().enabledDebugDraw = false;
+        // cc.director.getCollisionManager().enabledDebugDraw = false;
     },
     
     onKeyPressed: function (event) {
@@ -73,13 +75,11 @@ cc.Class({
     },
     
     onCollisionEnter: function (other, self) {
-        this.node.color = cc.Color.RED;
+        // this.node.color = cc.Color.RED;
 
         this.touchingNumber ++;
 
         var transParent = this.node.parent.getNodeToWorldTransformAR();
-        var appx = this.node.anchorX * this.node.width;
-        var appy = this.node.anchorY * this.node.height;
         
         // 1st step 
         // get pre aabb, go back before collision
@@ -93,6 +93,9 @@ cc.Class({
         // forward x-axis, check whether collision on x-axis
         selfPreAabb.x = selfAabb.x;
         otherPreAabb.x = otherAabb.x;
+
+        var appx = this.node.anchorX * selfAabb.width;
+        var appy = this.node.anchorY * selfAabb.height;
 
         if (cc.Intersection.rectRect(selfPreAabb, otherPreAabb)) {
             if (this.speed.x < 0 && (selfPreAabb.xMax > otherPreAabb.xMax)) {
@@ -122,6 +125,7 @@ cc.Class({
             }
             else if (this.speed.y > 0 && (selfPreAabb.yMin < otherPreAabb.yMin)) {
                 this.node.y = otherPreAabb.yMin - selfPreAabb.height - transParent.ty + appy;
+                this.speed.y = 0;
                 this.collisionY = 1;
             }
             
@@ -170,22 +174,37 @@ cc.Class({
     },
     
     update: function (dt) {
-        // Voice control run
         var voiceLevel = this.audioControl.voiceLevel;
-        if (voiceLevel > this.runVoiceLevel) {
-            this.direction = 1;
-        }
-        else {
-            this.direction = 0;
-        }
+        var animation = this.getComponent(cc.Animation);
 
         // Voice control jump
         if (!this.jumping && voiceLevel > this.jumpVoiceLevel) {
             this.jumping = true;
-            this.speed.y = voiceLevel / 100 * this.jumpSpeed;  
+            this.direction = 1;
+            this.speed.y = voiceLevel / 100 * this.jumpSpeed;
+            cc.audioEngine.play(this.jumpAudio, false, 1);
+            animation.play('jump');
         }
 
-        if (this.collisionY === 0) {
+        if (!this.jumping) {
+            var runState = animation.getAnimationState('run');
+            var standState = animation.getAnimationState('stand');
+            // Voice control run
+            if (voiceLevel > this.runVoiceLevel) {
+                this.direction = 1;
+                if (!runState.isPlaying) {
+                    animation.play('run');
+                }
+            }
+            else {
+                this.direction = 0;
+                if (!standState.isPlaying) {
+                    animation.play('stand');
+                }
+            }
+        }
+
+        if (this.collisionY >= 0) {
             this.speed.y += this.gravity * dt;
             if (Math.abs(this.speed.y) > this.maxSpeed.y) {
                 this.speed.y = this.speed.y > 0 ? this.maxSpeed.y : -this.maxSpeed.y;
