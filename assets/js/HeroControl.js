@@ -13,7 +13,9 @@ cc.Class({
         runVoiceLevel: 15,
         jumpVoiceLevel: 40,
         jumpAudio: cc.AudioClip,
-        dieAudio: cc.AudioClip
+        dieAudio: cc.AudioClip,
+        deathFrame: cc.SpriteFrame,
+        replayBtn: cc.Node
     },
 
     // use this for initialization
@@ -21,21 +23,41 @@ cc.Class({
         cc.director.getCollisionManager().enabled = true;
         // cc.director.getCollisionManager().enabledDebugDraw = true;
         
-        this.registerEvent();
-        
-        this.collisionX = 0;
-        this.collisionY = 0;
+        // this.registerEvent();
 
         this.prePosition = cc.v2();
         this.preStep = cc.v2();
 
         this.touchingNumber = 0;
+
+        this._startPoint = cc.v2(this.node.x, this.node.y);
+        this._dead = false;
+    },
+
+    replay: function () {
+        this.replayBtn.active = false;
+
+        this.collisionX = 0;
+        this.collisionY = 0;
+        this.speed.x = 0;
+        this.speed.y = 0;
+        this.direction = 0;
+        this.prePosition.x = 0;
+        this.prePosition.y = 0;
+        this.preStep.x = 0;
+        this.preStep.y = 0;
+        this.touchingNumber = 0;
+        this._dead = false;
+
+        this.node.x = this._startPoint.x;
+        this.node.y = this._startPoint.y;
+        this.getComponent(cc.Animation).play('stand');
     },
 
     registerEvent: function () {
         //add keyboard input listener to call turnLeft and turnRight
-        // cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyPressed, this);
-        // cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyReleased, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyPressed, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyReleased, this);
     },
     
     onDisabled: function () {
@@ -174,6 +196,9 @@ cc.Class({
     },
     
     update: function (dt) {
+        if (this._dead) {
+            return;
+        }
         var voiceLevel = this.audioControl.voiceLevel;
         var animation = this.getComponent(cc.Animation);
 
@@ -240,5 +265,13 @@ cc.Class({
         
         this.node.x += this.speed.x * dt;
         this.node.y += this.speed.y * dt;
+
+        if (this.node.y < -90) {
+            this._dead = true;
+            cc.audioEngine.play(this.dieAudio, false, 1);
+            animation.stop();
+            this.getComponent(cc.Sprite).spriteFrame = this.deathFrame;
+            this.replayBtn.active = true;
+        }
     },
 });
