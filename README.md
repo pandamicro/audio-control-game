@@ -2,6 +2,11 @@
 
 An audio controlled web game made with Cocos Creator, it's a sample game for demonstrating purpose.
 
+## Try it out
+
+Published at https://pandamicro.github.io/audio-control-game/web/
+Pleasy use desktop chrome or mobile chrome(android) to permit microphone usage
+
 ## Core feature in this game
 
 1. Audio control game basics
