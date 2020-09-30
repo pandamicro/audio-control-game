@@ -1,6 +1,6 @@
 # audio-control-game
 
-An audio controlled web game made with Cocos Creator, it's a sample game for demonstrating purpose.
+An amazing audio controlled web game made with Cocos Creator, it's a sample game for demonstrating purpose.
 
 ## Try it out
 
